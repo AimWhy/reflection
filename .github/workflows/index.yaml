@@ -1,25 +1,27 @@
 name: Index
 on:
-  pull_request:
   push:
-    branches:
-      - master
+
 jobs:
   test:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        node: [14, 16, 18]
+        node: [18, 20]
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node }}
       - run: npm install
       - run: npm run lint
       - run: npm run build
       - run: npm run test
+      - name: module test
+        run: |
+          node --input-type=module --eval "import * as m from '@abraham/reflection'; console.log(m)"
+          node --input-type=commonjs --eval "const m = require('@abraham/reflection'); console.log(m)"
       - run: npm run pkg-ok
       - uses: coverallsapp/github-action@master
         with:
